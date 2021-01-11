@@ -26,14 +26,21 @@ class DemotivatorGen(commands.Cog):
 
     if ctx.message.attachments: # if message has an attachment(s)
 
-      #Get attachment list from message attachments, get the first image in list, then stringify it's name
-      filename = str(ctx.message.attachments[0].filename)
+      # Set base attachment varible
+      attachment = ctx.message.attachments[0]
 
-      #Check if image is in allowed format
-      if filename.endswith(allowedExtensions):
+      # Stringify the image's name
+      sourceImageName = str(attachment.filename)
 
+      #Check if image is in an allowed format
+      if sourceImageName.endswith(allowedExtensions):
+
+        # Download image from Discord
+        #This refused to work so I used requests instead. I will probably revisit this in the future.
+        await attachment.save(f"/cogs/demotivators/{sourceImageName}/", seek_begin = False, use_cached = False)
+        
         # open image
-        img = Image.open("cogs/sourceImage.jpg")
+        sourceImage = Image.open(f"cogs/demotivators/{sourceImageName}/")
 
         # border color
         color = "white"
@@ -41,14 +48,14 @@ class DemotivatorGen(commands.Cog):
         # top, right, bottom, left
         border = (5, 5, 5, 5)
 
-        new_img = ImageOps.expand(img, border = border, fill = color)
+        demotivator = ImageOps.expand(sourceImage, border = border, fill = color)
 
         # save new demotivator
-        new_img.save("cogs/demotivator.jpg")
+        demotivator.save(f"cogs/demotivators/{sourceImageName}/")
 
         # Send demotivator
         
-        await ctx.send(file = discord.File("cogs/demotivator.jpg"))
+        await ctx.send(file = discord.File(f"cogs/demotivators/{sourceImageName}/"))
 
       else:
 

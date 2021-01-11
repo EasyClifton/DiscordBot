@@ -72,6 +72,12 @@ async def activity(ctx, *, activity):
     await client.change_presence(activity=discord.Game(activity))
     await ctx.send(f"Successfully set activity to \"{activity}\".")
 
+@client.command()
+async def save(ctx, name):
+  await ctx.send("Downloading attachment...")
+  await ctx.messages.attachments[0].save("name.png") # , seek_begin = False, use_cached = False
+  await ctx.send("Attachment downloaded!")
+
 
 @client.command(aliases = ["clear"])
 #@commands.has_permissions(manage_messages = True)

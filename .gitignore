@@ -130,6 +130,7 @@ dmypy.json
 
 # Bot files
 token.txt
+TODO.txt
 
 # replit files
 .replit
