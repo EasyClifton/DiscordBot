@@ -22,29 +22,41 @@ class DemotivatorGen(commands.Cog):
   @commands.command(aliases = ["dem", "demot"])
   async def demotivator(self, ctx, text1, text2 = None):
 
-    if ctx.attachments: # if message has an attachment(s)
+    allowedExtensions = (".jpg", ".jpeg", ".png", ".webp", ".gif")
 
-      # open image
-      img = Image.open("cogs/sourceImage.jpg")
+    if ctx.message.attachments: # if message has an attachment(s)
 
-      # border color
-      color = "white"
+      #Get attachment list from message attachments, get the first image in list, then stringify it's name
+      filename = str(ctx.message.attachments[0].filename)
 
-      # top, right, bottom, left
-      border = (5, 5, 5, 5)
+      #Check if image is in allowed format
+      if filename.endswith(allowedExtensions):
 
-      new_img = ImageOps.expand(img, border=border, fill=color)
+        # open image
+        img = Image.open("cogs/sourceImage.jpg")
 
-      # save new demotivator
-      new_img.save("cogs/demotivator.jpg")
+        # border color
+        color = "white"
 
-      # Send demotivator
-      
-      await ctx.send(file = discord.File("cogs/demotivator.jpg"))
+        # top, right, bottom, left
+        border = (5, 5, 5, 5)
 
-    if not ctx.attachments:
+        new_img = ImageOps.expand(img, border = border, fill = color)
 
-      ctx.send("Please attach an image!")
+        # save new demotivator
+        new_img.save("cogs/demotivator.jpg")
+
+        # Send demotivator
+        
+        await ctx.send(file = discord.File("cogs/demotivator.jpg"))
+
+      else:
+
+        await ctx.send("Image format not supported by Discord.")
+
+    else:
+
+      await ctx.send("Please attach an image!")
 
       
 
