@@ -13,7 +13,7 @@ async def on_ready():
     print('Logged in as {0.user}'.format(client))
     startActivity = discord.Game("with discord.py")
     startStatus = discord.Status.online
-    await client.change_presence(status=startStatus, activity=startActivity)
+    await client.change_presence(status = startStatus, activity = startActivity)
 
 
 @client.event

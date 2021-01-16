@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import PIL
 from PIL import Image, ImageOps
+import math
 
 
 class DemotivatorGen(commands.Cog):
@@ -29,36 +30,57 @@ class DemotivatorGen(commands.Cog):
       # Set base attachment varible
       attachment = ctx.message.attachments[0]
 
-      # Stringify the image's name
-      sourceImageName = str(attachment.filename)
-
       #Check if image is in an allowed format
-      if sourceImageName.endswith(allowedExtensions):
+      if attachment.filename.endswith(allowedExtensions):
 
         # Download image from Discord and save it with the correct file name and extension
         await attachment.save(f"./cogs/demotivators/{attachment.filename}")
         
-        # open image
-        sourceImage = Image.open(f"./cogs/demotivators/{sourceImageName}")
+        # Open image
+        discordImage = Image.open(f"./cogs/demotivators/{attachment.filename}")
 
-        # border color
+        # Resize image to fit base
+        discordImage.thumbnail((600, 600))
+
+        # Set color
+        color = "black"
+
+        # Top, right, bottom, left
+        border = (4, 4, 4, 4)
+
+        # Make first border
+        discordImage = ImageOps.expand(discordImage, border = border, fill = color)
+
+        # Set new color
         color = "white"
 
-        # top, right, bottom, left
-        border = (5, 5, 5, 5)
+        # Make second border
+        discordImage = ImageOps.expand(discordImage, border = border, fill = color)
 
-        demotivator = ImageOps.expand(sourceImage, border = border, fill = color)
+        # Open the background image and copy it
+        pasteBaseToCopy = Image.open("./cogs/pasteBase.png")
 
-        # save new demotivator
-        demotivator.save(f"./cogs/demotivators/{sourceImageName}")
+        pasteBase = pasteBaseToCopy.copy()
+
+        # Calculate the values to paste the discordImage into the center of the paste base
+        imgWidth, imgHeight = discordImage.size
+
+        # Center the image
+        xCoord = int(math.floor((1000 - imgWidth) / 2))
+        yCoord = int(math.floor((700 - imgHeight) / 2))
+
+        # Paste the discordImage to the paste base
+        pasteBase.paste(discordImage, (xCoord, yCoord, xCoord + imgWidth, yCoord + imgHeight))
+
+        # Save the newly made demotivator
+        pasteBase.save(f"./cogs/demotivators/{attachment.filename}")
 
         # Send demotivator
-        
-        await ctx.send(file = discord.File(f"./cogs/demotivators/{sourceImageName}"))
+        await ctx.send(file = discord.File(f"./cogs/demotivators/{attachment.filename}"))
 
       else:
 
-        await ctx.send("Image format not supported by Discord.")
+        await ctx.send("This image format not supported by Discord.")
 
     else:
 
