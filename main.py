@@ -57,7 +57,7 @@ for filename in os.listdir("./cogs"):
 
 # Commands
 
-@client.command()
+@client.command(brief = "This is the brief description", description = "This is the full description")
 async def ping(ctx):
     await ctx.send(f"🏓 Pong! {round(client.latency * 1000)}ms")
 
@@ -73,10 +73,11 @@ async def activity(ctx, *, activity):
     await ctx.send(f"Successfully set activity to \"{activity}\".")
 
 @client.command()
-async def save(ctx, name):
-  await ctx.send("Downloading attachment...")
-  await ctx.messages.attachments[0].save("name.png") # , seek_begin = False, use_cached = False
-  await ctx.send("Attachment downloaded!")
+async def save(ctx):
+    attachment = ctx.message.attachments[0]
+    # this will save it with the correct file extension
+    await attachment.save(attachment.filename) 
+    await ctx.send("Saved the file!")
 
 
 @client.command(aliases = ["clear"])
@@ -92,6 +93,10 @@ async def embed(ctx):
         title="Title", description="Description", colour=0x4287f5)
     await ctx.send(embed=embed)
 
+@client.command()
+async def custom(ctx, *, message):
+  embed = discord.Embed(description=f"{ctx.message.author.mention} {message}")
+  await ctx.send(embed=embed)
 
 @client.command(aliases=["шар", "8ball"])
 async def ball(ctx, *, question):
@@ -116,7 +121,7 @@ async def ball(ctx, *, question):
 @client.command()
 @commands.is_owner()
 async def restart(ctx):
-  await ctx.send("Restarting...")
+  await ctx.send("Restarting, allow up to 5 seconds...")
   await client.logout()
   await client.login()
   await ctx.edit(content = "Restarted!")
@@ -135,9 +140,14 @@ async def unload_error(ctx, error):
         await ctx.send("Please provide the extension to unload!")
 
 @reload.error
-async def reunload_error(ctx, error):
+async def reload_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("Please provide the extension to reload!")
+
+@custom.error
+async def custom_error(ctx, error):
+  if isinstance(error, commands.MissingRequiredArgument):
+      await ctx.send("Please provide a message to say!")
 
 @purge.error
 async def purge_error(ctx, error):

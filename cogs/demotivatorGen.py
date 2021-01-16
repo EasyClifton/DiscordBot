@@ -35,12 +35,11 @@ class DemotivatorGen(commands.Cog):
       #Check if image is in an allowed format
       if sourceImageName.endswith(allowedExtensions):
 
-        # Download image from Discord
-        #This refused to work so I used requests instead. I will probably revisit this in the future.
-        await attachment.save(f"/cogs/demotivators/{sourceImageName}/", seek_begin = False, use_cached = False)
+        # Download image from Discord and save it with the correct file name and extension
+        await attachment.save(f"./cogs/demotivators/{attachment.filename}")
         
         # open image
-        sourceImage = Image.open(f"cogs/demotivators/{sourceImageName}/")
+        sourceImage = Image.open(f"./cogs/demotivators/{sourceImageName}")
 
         # border color
         color = "white"
@@ -51,11 +50,11 @@ class DemotivatorGen(commands.Cog):
         demotivator = ImageOps.expand(sourceImage, border = border, fill = color)
 
         # save new demotivator
-        demotivator.save(f"cogs/demotivators/{sourceImageName}/")
+        demotivator.save(f"./cogs/demotivators/{sourceImageName}")
 
         # Send demotivator
         
-        await ctx.send(file = discord.File(f"cogs/demotivators/{sourceImageName}/"))
+        await ctx.send(file = discord.File(f"./cogs/demotivators/{sourceImageName}"))
 
       else:
 
