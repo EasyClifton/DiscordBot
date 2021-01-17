@@ -131,7 +131,7 @@ dmypy.json
 # Bot files
 token.txt
 TODO.txt
-demotivators/
+cogs/demotivators/
 
 # replit files
 .replit
