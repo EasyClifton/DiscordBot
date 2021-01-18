@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import PIL
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageFont, ImageDraw
 import math
 
 
@@ -20,8 +20,8 @@ class DemotivatorGen(commands.Cog):
 
   # Commands
     
-  @commands.command(aliases = ["dem", "demot"])
-  async def demotivator(self, ctx, text1, text2 = None):
+  @commands.command(aliases = ["dem", "demot"], brief = "Creates a demotivator with one or two captions", description = "Creates a demotivator with one or two captions. USAGE: .demotivator \"Caption 1\" \"Caption 2\" (Caption 2 is optional)")
+  async def demotivator(self, ctx, caption1, caption2 = None):
 
     allowedExtensions = (".jpg", ".jpeg", ".png", ".webp", ".gif")
 
@@ -71,6 +71,16 @@ class DemotivatorGen(commands.Cog):
 
         # Paste the discordImage to the paste base
         pasteBase.paste(discordImage, (xCoord, yCoord, xCoord + imgWidth, yCoord + imgHeight))
+
+        # Add the captions
+
+        draw = ImageDraw.Draw(pasteBase)
+
+        # font = ImageFont.truetype(<font-file>, <font-size>)
+        font = ImageFont.truetype("./cogs/impact.ttf", 80)
+
+        # draw.text((x, y),"Sample Text",(r,g,b))
+        draw.text((50, 750), caption1, (255, 255, 255), font = font)
 
         # Save the newly made demotivator
         pasteBase.save(f"./cogs/demotivators/{attachment.filename}")

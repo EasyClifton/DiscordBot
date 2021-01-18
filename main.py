@@ -173,7 +173,6 @@ async def ball_error(ctx, error):
 #  if isinstance(error, commands.MissingRequiredArgument):
 #    await ctx.send(f"Please provide the {error.param} parameter(s)")
 
-file = open("token.txt", 'r')
-token = file.read()
+token = os.getenv("TOKEN")
 
 client.run(token)
