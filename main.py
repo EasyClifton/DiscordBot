@@ -7,7 +7,6 @@ client = commands.Bot(command_prefix=".")  #  help_command = None
 
 # Events, general error events
 
-
 @client.event
 async def on_ready():
     print('Logged in as {0.user}'.format(client))
@@ -21,9 +20,7 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         await ctx.send("This command does not exist.")
     if isinstance(error, commands.MissingPermissions):
-        await ctx.send(
-            f"You do not have permissions to use this command. You need the {error.missing_perms} permission to execute this command."
-        )
+        await ctx.send(f"You do not have permissions to use this command. You need the {error.missing_perms} permission to execute this command.")
     if isinstance(error, commands.NotOwner):
         await ctx.send("Only the owner of the bot can exectue this command!")
 
@@ -172,6 +169,8 @@ async def ball_error(ctx, error):
 #async def presence_error(ctx, error):
 #  if isinstance(error, commands.MissingRequiredArgument):
 #    await ctx.send(f"Please provide the {error.param} parameter(s)")
+
+# The token is stored in an environmental variable called TOKEN
 
 token = os.getenv("TOKEN")
 

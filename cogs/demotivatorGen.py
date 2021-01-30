@@ -6,105 +6,112 @@ import math
 
 
 class DemotivatorGen(commands.Cog):
+    def __init__(self, client):
+        self.client = client
 
-  def __init__(self, client):
-    self.client = client
+    # Events
 
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print('Extension "DemotivatorGen" active!')
 
-  # Events
+    # Commands
 
-  @commands.Cog.listener()
-  async def on_ready(self):
-    print('Extension "DemotivatorGen" active!')
+    @commands.command(aliases = ["dem"], brief = "Creates a demotivator with one or two captions", description = "Creates a demotivator with one or two captions. USAGE: .demotivator \"Caption 1\" \"Caption 2\" (Caption 2 is optional)")
 
+    async def demotivator(self, ctx, caption1, caption2 = None):
 
-  # Commands
-    
-  @commands.command(aliases = ["dem", "demot"], brief = "Creates a demotivator with one or two captions", description = "Creates a demotivator with one or two captions. USAGE: .demotivator \"Caption 1\" \"Caption 2\" (Caption 2 is optional)")
-  async def demotivator(self, ctx, caption1, caption2 = None):
+        allowedExtensions = (".jpg", ".jpeg", ".png", ".webp", ".gif")
 
-    allowedExtensions = (".jpg", ".jpeg", ".png", ".webp", ".gif")
+        if ctx.message.attachments:  # if message has an attachment(s)
 
-    if ctx.message.attachments: # if message has an attachment(s)
+            # Set base attachment varible
+            attachment = ctx.message.attachments[0]
 
-      # Set base attachment varible
-      attachment = ctx.message.attachments[0]
+            #Check if image is in an allowed format
+            if attachment.filename.endswith(allowedExtensions):
 
-      #Check if image is in an allowed format
-      if attachment.filename.endswith(allowedExtensions):
+                # Download image from Discord and save it with the correct file name and extension
+                await attachment.save(
+                    f"./cogs/demotivators/{attachment.filename}")
 
-        # Download image from Discord and save it with the correct file name and extension
-        await attachment.save(f"./cogs/demotivators/{attachment.filename}")
+                # Open image
+                discordImage = Image.open(
+                    f"./cogs/demotivators/{attachment.filename}")
+
+                # Resize image to fit base
+                discordImage.thumbnail((600, 600))
+
+                # Set color
+                color = "black"
+
+                # Top, right, bottom, left
+                border = (4, 4, 4, 4)
+
+                # Make first border
+                discordImage = ImageOps.expand(
+                    discordImage, border=border, fill=color)
+
+                # Set new color
+                color = "white"
+
+                # Make second border
+                discordImage = ImageOps.expand(
+                    discordImage, border=border, fill=color)
+
+                # Open the background image and copy it
+                pasteBaseToCopy = Image.open("./cogs/pasteBase.png")
+
+                pasteBase = pasteBaseToCopy.copy()
+
+                # Calculate the values to paste the discordImage into the center of the paste base
+                imgWidth, imgHeight = discordImage.size
+
+                # Center the image
+                xCoord = int(math.floor((1000 - imgWidth) / 2))
+                yCoord = int(math.floor((700 - imgHeight) / 2))
+
+                # Paste the discordImage to the paste base
+                pasteBase.paste(
+                    discordImage,
+                    (xCoord, yCoord, xCoord + imgWidth, yCoord + imgHeight))
+
+                # Add the captions
+
+                draw = ImageDraw.Draw(pasteBase)
+
+                # font = ImageFont.truetype(<font-file>, <font-size>)
+                # Impact is for memes "./cogs/impact.ttf"
+                font = ImageFont.truetype(font = "./cogs/times.ttf", size = 80)
+
+                # Calculate position for text
+                captionWidth, captionHeight = draw.textsize(caption1, font = font)
+
+                # draw.text((x, y),"Sample Text",(r,g,b))
+                draw.text(((1000 - captionWidth) / 2, 750), caption1, (255, 255, 255), font = font)
         
-        # Open image
-        discordImage = Image.open(f"./cogs/demotivators/{attachment.filename}")
+                # Save the newly made demotivator
+                pasteBase.save(f"./cogs/demotivators/{attachment.filename}")
 
-        # Resize image to fit base
-        discordImage.thumbnail((600, 600))
+                # Send demotivator
+                await ctx.send(
+                    file=discord.File(f"./cogs/demotivators/{attachment.filename}"))
 
-        # Set color
-        color = "black"
+            else:
 
-        # Top, right, bottom, left
-        border = (4, 4, 4, 4)
+                await ctx.send("This image format not supported by Discord.")
 
-        # Make first border
-        discordImage = ImageOps.expand(discordImage, border = border, fill = color)
+        else:
 
-        # Set new color
-        color = "white"
+            await ctx.send("Please attach an image!")
 
-        # Make second border
-        discordImage = ImageOps.expand(discordImage, border = border, fill = color)
+    # Errors
 
-        # Open the background image and copy it
-        pasteBaseToCopy = Image.open("./cogs/pasteBase.png")
-
-        pasteBase = pasteBaseToCopy.copy()
-
-        # Calculate the values to paste the discordImage into the center of the paste base
-        imgWidth, imgHeight = discordImage.size
-
-        # Center the image
-        xCoord = int(math.floor((1000 - imgWidth) / 2))
-        yCoord = int(math.floor((700 - imgHeight) / 2))
-
-        # Paste the discordImage to the paste base
-        pasteBase.paste(discordImage, (xCoord, yCoord, xCoord + imgWidth, yCoord + imgHeight))
-
-        # Add the captions
-
-        draw = ImageDraw.Draw(pasteBase)
-
-        # font = ImageFont.truetype(<font-file>, <font-size>)
-        font = ImageFont.truetype("./cogs/impact.ttf", 80)
-
-        # draw.text((x, y),"Sample Text",(r,g,b))
-        draw.text((50, 750), caption1, (255, 255, 255), font = font)
-
-        # Save the newly made demotivator
-        pasteBase.save(f"./cogs/demotivators/{attachment.filename}")
-
-        # Send demotivator
-        await ctx.send(file = discord.File(f"./cogs/demotivators/{attachment.filename}"))
-
-      else:
-
-        await ctx.send("This image format not supported by Discord.")
-
-    else:
-
-      await ctx.send("Please attach an image!")
-
-      
-
-  # Errors
-
-  @demotivator.error
-  async def demotivator_error(self, ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-      await ctx.send("Please provide at least one caption for the demotivator!")
+    @demotivator.error
+    async def demotivator_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("Please provide at least one caption for the demotivator!")
 
 
 def setup(client):
-  client.add_cog(DemotivatorGen(client))
+    client.add_cog(DemotivatorGen(client))
