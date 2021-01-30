@@ -2,6 +2,8 @@ import discord
 from discord.ext import commands
 import os
 import random
+import re
+from datetime import datetime
 
 client = commands.Bot(command_prefix=".")  #  help_command = None
 
@@ -20,7 +22,7 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         await ctx.send("This command does not exist.")
     if isinstance(error, commands.MissingPermissions):
-        await ctx.send(f"You do not have permissions to use this command. You need the {error.missing_perms} permission to execute this command.")
+        await ctx.send(f"You do not have permissions to use this command. You need the {error.missing_perms} permission(s) to execute this command.")
     if isinstance(error, commands.NotOwner):
         await ctx.send("Only the owner of the bot can exectue this command!")
 
@@ -74,14 +76,27 @@ async def save(ctx):
     attachment = ctx.message.attachments[0]
     # this will save it with the correct file extension
     await attachment.save(attachment.filename) 
-    await ctx.send("Saved the file!")
+    await ctx.send("File saved!")
 
 
 @client.command(aliases = ["clear"])
-#@commands.has_permissions(manage_messages = True)
+# @commands.has_permissions(manage_messages = True)
 @commands.is_owner()
-async def purge(ctx, amount: int):
-    await ctx.channel.purge(limit=amount + 1)
+async def purge(ctx, amount: int, userID: int = None):
+  if userID == None:
+    await ctx.channel.purge(limit = amount + 1)
+  else: # Use regex to verify ID
+    await ctx.message.delete()
+    messageCounter = 0
+    while messageCounter <= amount:
+      async for message in ctx.channel.history(limit = amount):
+        if message.author.id == userID:
+          await message.delete()
+          messageCounter += 1
+          print(messageCounter)
+    print("done")
+    
+        
 
 
 @client.command()
@@ -119,6 +134,8 @@ async def ball(ctx, *, question):
 @commands.is_owner()
 async def restart(ctx):
   await ctx.send("Restarting, allow up to 5 seconds...")
+  now = datetime.now()
+  print(f"[{now}] Restarting...")
   await client.logout()
   await client.login()
   await ctx.edit(content = "Restarted!")
