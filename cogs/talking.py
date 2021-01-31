@@ -11,7 +11,7 @@ class Talking(commands.Cog):
 
   @commands.Cog.listener()
   async def on_ready(self):
-    print(f"Extension \"Talking\" active!")
+    print("Extension \"Talking\" active!")
 
 
   # Commands
@@ -20,7 +20,7 @@ class Talking(commands.Cog):
   async def say(self, ctx, *, message): # add optional channelID
     #channel = channelID
     await ctx.send(message) # channel
-    await ctx.delete(message)
+    await ctx.message.delete()
 
   @commands.command()
   async def edit(self, ctx, channelID : int, messageID : int, content): # : discord.Channel = None

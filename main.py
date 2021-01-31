@@ -3,7 +3,7 @@ from discord.ext import commands
 import os
 import random
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 
 client = commands.Bot(command_prefix=".")  #  help_command = None
 
@@ -79,6 +79,8 @@ async def save(ctx):
     await ctx.send("File saved!")
 
 
+# And here comes the most complicated, overingeneered and unoptimised purge command ever
+
 @client.command(aliases = ["clear"])
 # @commands.has_permissions(manage_messages = True)
 @commands.is_owner()
@@ -87,15 +89,25 @@ async def purge(ctx, amount: int, userID: int = None):
     await ctx.channel.purge(limit = amount + 1)
   else: # Use regex to verify ID
     await ctx.message.delete()
-    messageCounter = 0
-    while messageCounter <= amount:
-      async for message in ctx.channel.history(limit = amount):
+    twoWeeksAgo = datetime.utcnow() - timedelta(days = 14)
+    messages = await ctx.channel.history(after = twoWeeksAgo).flatten()
+    messagesToDelete = []
+
+    while len(messagesToDelete) < amount:
+      for message in messages():
         if message.author.id == userID:
-          await message.delete()
-          messageCounter += 1
-          print(messageCounter)
-    print("done")
-    
+          amount += 1
+
+        if len(messagesToDelete) == amount:
+          print(messagesToDelete)
+          break
+
+      print(messagesToDelete)
+      for message in messagesToDelete:
+        await message.delete()
+
+        
+
         
 
 
