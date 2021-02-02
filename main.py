@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 import os
 import random
-import re
 from datetime import datetime, timedelta
 
 client = commands.Bot(command_prefix=".")  #  help_command = None
@@ -84,31 +83,34 @@ async def save(ctx):
 @client.command(aliases = ["clear"])
 # @commands.has_permissions(manage_messages = True)
 @commands.is_owner()
+
+# Defining the command, the amount argument is the amount of messages that needs to be deleted and the userID is the optional ID of the user the messages of whom need to be deleted.
 async def purge(ctx, amount: int, userID: int = None):
+
+  # Do a normal deletion if the userID argument is not present
   if userID == None:
     await ctx.channel.purge(limit = amount + 1)
-  else: # Use regex to verify ID
+
+  # else do a check to find out the messages that need to be deleted. This can probaby be done 10 times easier but I'm still a programming noob so...
+  else:
+    # Delete the message that triggered the command
     await ctx.message.delete()
+    # Calculate the time from the last two weeks and collect the message history.
     twoWeeksAgo = datetime.utcnow() - timedelta(days = 14)
-    messages = await ctx.channel.history(after = twoWeeksAgo).flatten()
+    messages = await ctx.channel.history(after = twoWeeksAgo, oldest_first = False).flatten()
     messagesToDelete = []
 
-    while len(messagesToDelete) < amount:
-      for message in messages():
-        if message.author.id == userID:
-          amount += 1
+    # Iterate through messages until the requested amount is found or the messages end and delete the collected messages afterwards
+    for message in messages:
+      if message.author.id == userID:
+        messagesToDelete.append(message)
 
-        if len(messagesToDelete) == amount:
-          print(messagesToDelete)
-          break
+      if len(messagesToDelete) == amount:
+        break
+    
+    for message in messagesToDelete:
+      await message.delete()
 
-      print(messagesToDelete)
-      for message in messagesToDelete:
-        await message.delete()
-
-        
-
-        
 
 
 @client.command()
