@@ -53,6 +53,7 @@ for filename in os.listdir("./cogs"):
         client.load_extension(f"cogs.{filename[:-3]}")
 
 
+
 # Commands
 
 @client.command(brief = "This is the brief description", description = "This is the full description")
@@ -77,7 +78,18 @@ async def save(ctx):
     await attachment.save(attachment.filename) 
     await ctx.send("File saved!")
 
+@client.command()
+async def vote(ctx, *, message):
+  msg = await ctx.send(f"Голосование: {message}?")
+  await msg.add_reaction(emoji = "👍")
+  await msg.add_reaction(emoji = "👎")
 
+@client.command()
+async def quote(ctx, *, message):
+    embed = discord.Embed(title="Великие цитаты:", description=f"> {message}", colour=0xffbb00)
+    embed.set_footer(text = ctx.message.author.display_name, icon_url=ctx.message.author.avatar_url)
+    await ctx.send(embed=embed)
+  
 # And here comes the most complicated, overingeneered and unoptimised purge command ever
 
 @client.command(aliases = ["clear"])
@@ -85,10 +97,10 @@ async def save(ctx):
 @commands.is_owner()
 
 # Defining the command, the amount argument is the amount of messages that needs to be deleted and the userID is the optional ID of the user the messages of whom need to be deleted.
-async def purge(ctx, amount: int, userID: int = None):
+async def purge(ctx, amount: int, member: discord.Member = None):
 
   # Do a normal deletion if the userID argument is not present
-  if userID == None:
+  if member == None:
     await ctx.channel.purge(limit = amount + 1)
 
   # else do a check to find out the messages that need to be deleted. This can probaby be done 10 times easier but I'm still a programming noob so...
@@ -102,7 +114,7 @@ async def purge(ctx, amount: int, userID: int = None):
 
     # Iterate through messages until the requested amount is found or the messages end and delete the collected messages afterwards
     for message in messages:
-      if message.author.id == userID:
+      if message.author == member:
         messagesToDelete.append(message)
 
       if len(messagesToDelete) == amount:
@@ -115,8 +127,13 @@ async def purge(ctx, amount: int, userID: int = None):
 
 @client.command()
 async def embed(ctx):
-    embed = discord.Embed(
-        title="Title", description="Description", colour=0x4287f5)
+    embed = discord.Embed(title="Title", description="Description", colour=0x4287f5)
+    await ctx.send(embed=embed)
+
+@client.command()
+async def error(ctx):
+    embed = discord.Embed(description = "<:redtick:806254855143948300> Error!", colour=0xff0000)
+    embed.set_image(url="https://images-ext-1.discordapp.net/external/NQYiVqmfxw7d4ICOFsQp2ygDDRykbn2ZXgHaWhwfTlo/%3Fsize%3D256%26f%3D.gif/https/cdn.discordapp.com/avatars/493040027274575883/a_0ca63bb9ef459a782b9b85dcb4524ed5.gif")
     await ctx.send(embed=embed)
 
 @client.command()

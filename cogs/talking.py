@@ -23,10 +23,9 @@ class Talking(commands.Cog):
     await ctx.message.delete()
 
   @commands.command()
-  async def edit(self, ctx, channelID : int, messageID : int, content): # : discord.Channel = None
-    channel = await ctx.get_channel(channelID)
-    print(channel)
-    message = await channel.fetch_message(messageID)
+  async def edit(self, ctx, messageID : int, content): # : discord.Channel = None
+    print("e")
+    message = await ctx.channel.fetch_message(messageID)
     print(message)
     await message.edit(content = content)
 
