@@ -49,20 +49,16 @@ class DemotivatorGen(commands.Cog):
                 border = (4, 4, 4, 4)
 
                 # Make first border
-                discordImage = ImageOps.expand(
-                    discordImage, border=border, fill=color)
+                discordImage = ImageOps.expand(discordImage, border=border, fill=color)
 
                 # Set new color
                 color = "white"
 
                 # Make second border
-                discordImage = ImageOps.expand(
-                    discordImage, border=border, fill=color)
+                discordImage = ImageOps.expand(discordImage, border=border, fill=color)
 
                 # Open the background image and copy it
-                pasteBaseToCopy = Image.open("./cogs/pasteBase.png")
-
-                pasteBase = pasteBaseToCopy.copy()
+                pasteBase = Image.new("RGB", (1000, 1000),"black")
 
                 # Calculate the values to paste the discordImage into the center of the paste base
                 imgWidth, imgHeight = discordImage.size
@@ -72,9 +68,7 @@ class DemotivatorGen(commands.Cog):
                 yCoord = int(math.floor((700 - imgHeight) / 2))
 
                 # Paste the discordImage to the paste base
-                pasteBase.paste(
-                    discordImage,
-                    (xCoord, yCoord, xCoord + imgWidth, yCoord + imgHeight))
+                pasteBase.paste(discordImage,(xCoord, yCoord, xCoord + imgWidth, yCoord + imgHeight))
 
                 # Add the captions
 

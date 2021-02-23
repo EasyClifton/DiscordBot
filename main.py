@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import os
 import random
+import asyncio
 from datetime import datetime, timedelta
 
 client = commands.Bot(command_prefix=".")  #  help_command = None
@@ -18,8 +19,6 @@ async def on_ready():
 
 @client.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
-        await ctx.send("This command does not exist.")
     if isinstance(error, commands.MissingPermissions):
         await ctx.send(f"You do not have permissions to use this command. You need the {error.missing_perms} permission(s) to execute this command.")
     if isinstance(error, commands.NotOwner):
@@ -53,7 +52,6 @@ for filename in os.listdir("./cogs"):
         client.load_extension(f"cogs.{filename[:-3]}")
 
 
-
 # Commands
 
 @client.command(brief = "This is the brief description", description = "This is the full description")
@@ -80,7 +78,7 @@ async def save(ctx):
 
 @client.command()
 async def vote(ctx, *, message):
-  msg = await ctx.send(f"Голосование: {message}?")
+  msg = await ctx.send(f"Vote: {message}?")
   await msg.add_reaction(emoji = "👍")
   await msg.add_reaction(emoji = "👎")
 
@@ -161,7 +159,7 @@ async def ball(ctx, *, question):
 #  await client.change_presence(status = discord.Status.status, activity = activity.activity)
 #  await ctx.send(f"Status and activity set to {presence.status} and {presence.activity}")
 
-@client.command()
+@client.command(hidden=True)
 @commands.is_owner()
 async def restart(ctx):
   await ctx.send("Restarting, allow up to 5 seconds...")
