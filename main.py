@@ -9,6 +9,10 @@ client = commands.Bot(command_prefix=".")  #  help_command = None
 
 # Events, general error events
 
+for filename in os.listdir("./cogs"):
+    if filename.endswith(".py"):
+        client.load_extension(f"cogs.{filename[:-3]}")
+
 @client.event
 async def on_ready():
     print('Logged in as {0.user}'.format(client))
@@ -27,29 +31,25 @@ async def on_command_error(ctx, error):
 
 # Cogs
 
-@client.command()
+@client.command(hidden=True)
 @commands.is_owner()
 async def load(ctx, extension):
     client.load_extension(f"cogs.{extension}")
     await ctx.send(f"Successfully loaded \"{extension}\" extension!")
 
-@client.command()
+@client.command(hidden=True)
 @commands.is_owner()
 async def unload(ctx, extension):
     client.unload_extension(f"cogs.{extension}")
     await ctx.send(f"Successfully unloaded \"{extension}\" extension!")
 
-@client.command()
+@client.command(hidden=True)
 @commands.is_owner()
 async def reload(ctx, extension):
     client.unload_extension(f"cogs.{extension}")
     client.load_extension(f"cogs.{extension}")
     await ctx.send(f"Successfully reloaded \"{extension}\" extension!")
 
-
-for filename in os.listdir("./cogs"):
-    if filename.endswith(".py"):
-        client.load_extension(f"cogs.{filename[:-3]}")
 
 
 # Commands
@@ -58,35 +58,8 @@ for filename in os.listdir("./cogs"):
 async def ping(ctx):
     await ctx.send(f"🏓 Pong! {round(client.latency * 1000)}ms")
 
-@client.command()
-async def status(ctx, status):
-    await client.change_presence(status=discord.Status.status)
-    await ctx.send(f"Successfully set status to \"{status}\".")
 
 
-@client.command()
-async def activity(ctx, *, activity):
-    await client.change_presence(activity=discord.Game(activity))
-    await ctx.send(f"Successfully set activity to \"{activity}\".")
-
-@client.command()
-async def save(ctx):
-    attachment = ctx.message.attachments[0]
-    # this will save it with the correct file extension
-    await attachment.save(attachment.filename) 
-    await ctx.send("File saved!")
-
-@client.command()
-async def vote(ctx, *, message):
-  msg = await ctx.send(f"Vote: {message}?")
-  await msg.add_reaction(emoji = "👍")
-  await msg.add_reaction(emoji = "👎")
-
-@client.command()
-async def quote(ctx, *, message):
-    embed = discord.Embed(title="Великие цитаты:", description=f"> {message}", colour=0xffbb00)
-    embed.set_footer(text = ctx.message.author.display_name, icon_url=ctx.message.author.avatar_url)
-    await ctx.send(embed=embed)
   
 # And here comes the most complicated, overingeneered and unoptimised purge command ever
 
@@ -121,11 +94,19 @@ async def purge(ctx, amount: int, member: discord.Member = None):
     for message in messagesToDelete:
       await message.delete()
 
+    if len(messagesToDelete) <= amount:
+      embed = discord.Embed(description = f"<:greentick:806254855588937748> Deleted {len(messagesToDelete)} message(s). Messages older than two weeks were skipped.", colour=0x6dd94c)
+      await ctx.send(embed=embed)
+    else:
+      print("enough")
+      embed = discord.Embed(description = f"<:greentick:806254855588937748> Deleted {len(messagesToDelete)} message(s).", colour=0x6dd94c)
+      await ctx.send(embed=embed)
+
 
 
 @client.command()
 async def embed(ctx):
-    embed = discord.Embed(title="Title", description="Description", colour=0x4287f5)
+    embed = discord.Embed(description = "**<:greentick:806254855588937748> Удалено сообщений. Сообщения более двухнедельной давности были пропущены.**", colour=0x6dd94c)
     await ctx.send(embed=embed)
 
 @client.command()
@@ -139,18 +120,6 @@ async def custom(ctx, *, message):
   embed = discord.Embed(description=f"{ctx.message.author.mention} {message}")
   await ctx.send(embed=embed)
 
-@client.command(aliases=["шар", "8ball"])
-async def ball(ctx, *, question):
-    responses = [
-        "It is certain.", "It is decidedly so.", "Without a doubt.",
-        "Yes - definitely.", "You may rely on it.", "As I see it, yes.",
-        "Most likely.", "Outlook good.", "Yes.", "Signs point to yes.",
-        "Reply hazy, try again.", "Ask again later.",
-        "Better not tell you now.", "Cannot predict now.",
-        "Concentrate and ask again.", "Don't count on it.", "My reply is no.",
-        "My sources say no.", "Outlook not so good.", "Very doubtful."
-    ]
-    await ctx.send(random.choice(responses))
 
 
 #@client.command()
@@ -159,15 +128,6 @@ async def ball(ctx, *, question):
 #  await client.change_presence(status = discord.Status.status, activity = activity.activity)
 #  await ctx.send(f"Status and activity set to {presence.status} and {presence.activity}")
 
-@client.command(hidden=True)
-@commands.is_owner()
-async def restart(ctx):
-  await ctx.send("Restarting, allow up to 5 seconds...")
-  now = datetime.now()
-  print(f"[{now}] Restarting...")
-  await client.logout()
-  await client.login()
-  await ctx.edit(content = "Restarted!")
 
 # Comman-specific errors
 
@@ -199,16 +159,6 @@ async def purge_error(ctx, error):
     if isinstance(error, commands.BadArgument):
         await ctx.send("The amount of messages to purge must be a number!")
 
-
-@activity.error
-async def activity_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("Please provide the activity to set!")
-
-@ball.error
-async def ball_error(ctx, error):
-  if isinstance(error, commands.MissingRequiredArgument):
-    await ctx.send("Please provide the question to predict the answer to!")
 
 
 #@presence.error

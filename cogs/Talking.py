@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import typing
 
 
 class Talking(commands.Cog):
@@ -14,17 +15,27 @@ class Talking(commands.Cog):
 
     # Commands
 
-    @commands.command()
-    async def say(self, ctx, *, message):  # add optional channelID
-        #channel = channelID
-        await ctx.send(message)  # channel
+    @commands.command(brief="Makes the bot say something")
+    async def say(self, ctx, *, messageText):  # add optional channel
         await ctx.message.delete()
+        await ctx.send(messageText)  # channel
 
-    @commands.command()
-    async def edit(self, ctx, messageID: int, content):  # : discord.Channel = None
-        message = await ctx.channel.fetch_message(messageID)
+    @commands.command(brief="Makes the bot edit any of it's messages")
+    async def edit(self, ctx, message: discord.Message, *, messageText):
         await ctx.message.delete()
-        await message.edit(content=content)
+        await message.edit(content=messageText)
+
+    @commands.command(brief="Makes the bot reply to any message")
+    async def reply(self, ctx, message: discord.Message, pingAuthor: typing.Optional[bool] = True, *, messageText):
+        await ctx.message.delete()
+        await message.reply(content=messageText, mention_author=pingAuthor)
+
+    @commands.command(brief="Deletes a specific message")
+    async def delete(self, ctx, messageToDelete: discord.Message):
+        await ctx.message.delete()
+        await messageToDelete.delete()
+
+
 
     # Errors
 

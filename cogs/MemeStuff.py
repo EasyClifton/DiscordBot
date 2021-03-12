@@ -5,7 +5,7 @@ from PIL import Image, ImageOps, ImageFont, ImageDraw
 import math
 
 
-class DemotivatorGen(commands.Cog):
+class MemeStuff(commands.Cog, name='Meme stuff'):
     def __init__(self, client):
         self.client = client
 
@@ -13,7 +13,7 @@ class DemotivatorGen(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print('Extension "DemotivatorGen" active!')
+        print('Extension "Meme Stuff" active!')
 
     # Commands
 
@@ -29,7 +29,7 @@ class DemotivatorGen(commands.Cog):
             attachment = ctx.message.attachments[0]
 
             #Check if image is in an allowed format
-            if attachment.filename.endswith(allowedExtensions):
+            if attachment.filename.lower().endswith(allowedExtensions):
 
                 # Download image from Discord and save it with the correct file name and extension
                 await attachment.save(
@@ -57,7 +57,7 @@ class DemotivatorGen(commands.Cog):
                 # Make second border
                 discordImage = ImageOps.expand(discordImage, border=border, fill=color)
 
-                # Open the background image and copy it
+                # Create the background image
                 pasteBase = Image.new("RGB", (1000, 1000),"black")
 
                 # Calculate the values to paste the discordImage into the center of the paste base
@@ -74,10 +74,12 @@ class DemotivatorGen(commands.Cog):
 
                 draw = ImageDraw.Draw(pasteBase)
 
+                # fontSize = 1000/caption1.len()*1.5
+                
+                
                 # font = ImageFont.truetype(<font-file>, <font-size>)
                 # Impact is for memes "./cogs/impact.ttf"
-                font = ImageFont.truetype(font = "./cogs/times.ttf", size = 80)
-
+                font = ImageFont.truetype(font = "./cogs/assets/times.ttf", size = 80)
                 # Calculate position for text
                 captionWidth, captionHeight = draw.textsize(caption1, font = font)
 
@@ -88,8 +90,7 @@ class DemotivatorGen(commands.Cog):
                 pasteBase.save(f"./cogs/demotivators/{attachment.filename}")
 
                 # Send demotivator
-                await ctx.send(
-                    file=discord.File(f"./cogs/demotivators/{attachment.filename}"))
+                await ctx.send(file=discord.File(f"./cogs/demotivators/{attachment.filename}"))
 
             else:
 
@@ -98,6 +99,7 @@ class DemotivatorGen(commands.Cog):
         else:
 
             await ctx.send("Please attach an image!")
+        
 
     # Errors
 
@@ -108,4 +110,4 @@ class DemotivatorGen(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(DemotivatorGen(client))
+    client.add_cog(MemeStuff(client))
