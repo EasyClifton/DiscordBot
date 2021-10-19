@@ -30,7 +30,7 @@ class Talking(commands.Cog):
         await ctx.message.delete()
         await message.reply(content=messageText, mention_author=pingAuthor)
 
-    @commands.command(brief="Deletes a specific message")
+    @commands.command(aliases=["del"], brief="Deletes a specific message")
     async def delete(self, ctx, messageToDelete: discord.Message):
         await ctx.message.delete()
         await messageToDelete.delete()

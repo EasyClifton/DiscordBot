@@ -1,11 +1,11 @@
 import discord
 from discord.ext import commands
 import os
-import random
-import asyncio
 from datetime import datetime, timedelta
 
-client = commands.Bot(command_prefix=".")  #  help_command = None
+intents = discord.Intents().all()
+
+client = commands.Bot(intents=intents, command_prefix=commands.when_mentioned_or("."))  #  help_command = None
 
 # Events, general error events
 
@@ -16,9 +16,16 @@ for filename in os.listdir("./cogs"):
 @client.event
 async def on_ready():
     print('Logged in as {0.user}'.format(client))
-    startActivity = discord.Game("with discord.py")
+    startActivity = discord.Game("discord.py")
     startStatus = discord.Status.online
     await client.change_presence(status = startStatus, activity = startActivity)
+
+
+@client.event
+async def on_message(message):
+    if str(client.user.id) in message.content:
+        await message.channel.send("My prefix is `.`")
+    await client.process_commands(message)
 
 
 @client.event
@@ -56,15 +63,14 @@ async def reload(ctx, extension):
 
 @client.command(brief = "This is the brief description", description = "This is the full description")
 async def ping(ctx):
-    await ctx.send(f"🏓 Pong! {round(client.latency * 1000)}ms")
+  await ctx.send(f"🏓 Pong! {round(client.latency * 1000)}ms")
 
-
-
-  
 # And here comes the most complicated, overingeneered and unoptimised purge command ever
+
 
 @client.command(aliases = ["clear"])
 # @commands.has_permissions(manage_messages = True)
+#@commands.has_permissions(administrator=True)
 @commands.is_owner()
 
 # Defining the command, the amount argument is the amount of messages that needs to be deleted and the userID is the optional ID of the user the messages of whom need to be deleted.
@@ -102,13 +108,6 @@ async def purge(ctx, amount: int, member: discord.Member = None):
       embed = discord.Embed(description = f"<:greentick:806254855588937748> Deleted {len(messagesToDelete)} message(s).", colour=0x6dd94c)
       await ctx.send(embed=embed)
 
-
-
-@client.command()
-async def embed(ctx):
-    embed = discord.Embed(description = "**<:greentick:806254855588937748> Удалено сообщений. Сообщения более двухнедельной давности были пропущены.**", colour=0x6dd94c)
-    await ctx.send(embed=embed)
-
 @client.command()
 async def error(ctx):
     embed = discord.Embed(description = "<:redtick:806254855143948300> Error!", colour=0xff0000)
@@ -116,8 +115,8 @@ async def error(ctx):
     await ctx.send(embed=embed)
 
 @client.command()
-async def custom(ctx, *, message):
-  embed = discord.Embed(description=f"{ctx.message.author.mention} {message}")
+async def embed(ctx, *, message):
+  embed = discord.Embed(description=message)
   await ctx.send(embed=embed)
 
 
@@ -146,11 +145,6 @@ async def unload_error(ctx, error):
 async def reload_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("Please provide the extension to reload!")
-
-@custom.error
-async def custom_error(ctx, error):
-  if isinstance(error, commands.MissingRequiredArgument):
-      await ctx.send("Please provide a message to say!")
 
 @purge.error
 async def purge_error(ctx, error):

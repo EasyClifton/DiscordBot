@@ -74,12 +74,13 @@ class MemeStuff(commands.Cog, name='Meme stuff'):
 
                 draw = ImageDraw.Draw(pasteBase)
 
-                # fontSize = 1000/caption1.len()*1.5
+                fontSize = min(round((1000/len(caption1))*1.5), 100)
                 
+                # print(fontSize)
                 
                 # font = ImageFont.truetype(<font-file>, <font-size>)
                 # Impact is for memes "./cogs/impact.ttf"
-                font = ImageFont.truetype(font = "./cogs/assets/times.ttf", size = 80)
+                font = ImageFont.truetype(font = "./cogs/assets/times.ttf", size = fontSize)
                 # Calculate position for text
                 captionWidth, captionHeight = draw.textsize(caption1, font = font)
 

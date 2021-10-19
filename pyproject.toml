@@ -8,6 +8,7 @@ authors = ["repl.it user <replituser@example.com>"]
 python = "^3.8"
 discord = "^1.0.1"
 autopep8 = "^1.5.4"
+pyfiglet = "^0.8.post1"
 
 [tool.poetry.dev-dependencies]
 

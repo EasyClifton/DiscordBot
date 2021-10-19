@@ -1,4 +1,6 @@
 import discord
+import typing
+import asyncio
 from discord.ext import commands
 from datetime import datetime
 
@@ -32,6 +34,35 @@ class Owner(commands.Cog):
       now = datetime.now()
       print(f"[{now}] Restarting...")
       await self.client.logout()
+
+    @commands.command(brief="Renames a specific user")
+    @commands.is_owner()
+    async def rename(self, ctx, member: discord.Member, *, name):
+      await member.edit(nick=name)
+      await ctx.message.delete()
+
+      '''
+      if name is None:
+        await member.edit(nick=None)
+      else:
+        await member.edit(nick=name)
+        await ctx.message.delete()
+      '''
+
+    @commands.command(brief="Renames everyone in the guild")
+    @commands.is_owner()
+    async def renameall(self, ctx, *, name):
+      members = ctx.guild.members
+      print(members)
+      for member in members:
+        await asyncio.sleep(5)
+        print(member)
+        await member.edit(nick=name)
+
+    @commands.command(aliases=["eval"])
+    @commands.is_owner()
+    async def evaluate(ctx, *, command):
+        await ctx.send(eval(command))
         
 
     # Errors
